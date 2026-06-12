@@ -69,12 +69,12 @@ export default function Sidebar() {
     <>
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-[var(--card-bg)] border-b border-[var(--border-color)] sticky top-0 z-30">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
             <Sparkles className="w-5 h-5" />
           </div>
           <span className="font-bold text-lg text-[var(--foreground)]">AstroCRM</span>
-        </div>
+        </Link>
         <button
           onClick={() => setMobileOpen(true)}
           className="p-2 text-[var(--muted-fg)] hover:text-[var(--foreground)] rounded-lg hover:bg-[var(--sidebar-hover)] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
@@ -103,14 +103,14 @@ export default function Sidebar() {
       >
         {/* Header */}
         <div className="h-16 flex items-center px-4 shrink-0 justify-between">
-          <div className={cn("flex items-center gap-3 overflow-hidden", collapsed && "md:hidden")}>
+          <Link href="/" className={cn("flex items-center gap-3 overflow-hidden", collapsed && "md:hidden")}>
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <span className="font-bold text-lg text-[var(--foreground)] tracking-tight">
               AstroCRM
             </span>
-          </div>
+          </Link>
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-2 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--muted-fg)] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 hidden md:block"
