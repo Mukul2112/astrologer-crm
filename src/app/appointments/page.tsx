@@ -41,6 +41,17 @@ export default function AppointmentsPage() {
       .then((data) => setClients(data.clients || []));
   }, []);
 
+  const getGoogleCalendarUrl = (appt: Appointment) => {
+    const start = new Date(appt.dateTime);
+    const end = new Date(start.getTime() + appt.duration * 60000);
+    const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    
+    const title = encodeURIComponent(`${appt.type} with ${appt.client.name}`);
+    const details = encodeURIComponent(`Appointment: ${appt.type}\nDuration: ${appt.duration} mins\nClient: ${appt.client.name}`);
+    
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDate(start)}/${formatDate(end)}&details=${details}`;
+  };
+
   const updateStatus = async (id: string, status: string) => {
     setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     await fetch(`/api/appointments/${id}`, {
@@ -138,6 +149,14 @@ export default function AppointmentsPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <a 
+                      href={getGoogleCalendarUrl(appt)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 hover:bg-blue-200 transition-colors flex items-center gap-1"
+                    >
+                      Add to GCal
+                    </a>
                     {appt.status === "SCHEDULED" && (
                       <>
                         <button onClick={() => updateStatus(appt.id, "CONFIRMED")} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 hover:bg-indigo-200 transition-colors">Confirm</button>

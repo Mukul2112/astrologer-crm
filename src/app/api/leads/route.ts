@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -32,6 +33,22 @@ export async function POST(req: Request) {
         assignedAstrologer: { select: { name: true } },
       },
     });
+
+    // Send email notification (doesn't block the response)
+    if (process.env.EMAIL_USER) {
+      sendEmail({
+        to: process.env.EMAIL_USER,
+        subject: `New Lead Created: ${lead.client.name}`,
+        html: `
+          <h3>New Lead Opportunity</h3>
+          <p><strong>Client:</strong> ${lead.client.name}</p>
+          <p><strong>Stage:</strong> ${lead.stage}</p>
+          <p><strong>Source:</strong> ${lead.source || 'Direct'}</p>
+          <p>Log in to your CRM to follow up!</p>
+        `,
+      });
+    }
+
     return NextResponse.json(lead, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to create lead" }, { status: 500 });
