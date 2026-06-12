@@ -1,98 +1,191 @@
-import { clients } from "@/lib/data";
-import { Search, Plus, MoreVertical } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Search, Plus, Phone, Mail, Star } from "lucide-react";
 import Link from "next/link";
 
+interface Client {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  zodiacSign: string | null;
+  consultationPreference: string | null;
+  avatar: string | null;
+  createdAt: string;
+  _count?: { appointments: number };
+}
+
+const ZODIAC_SIGNS = ["All", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+
 export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("All");
+  const [showAdd, setShowAdd] = useState(false);
+
+  const fetchClients = () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (filter !== "All") params.set("zodiacSign", filter);
+    fetch(`/api/clients?${params}`)
+      .then((r) => r.json())
+      .then((data) => { setClients(data.clients || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(fetchClients, 300);
+    return () => clearTimeout(timer);
+  }, [search, filter]);
+
+  const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    await fetch("/api/clients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.get("name"),
+        phone: form.get("phone"),
+        email: form.get("email"),
+        zodiacSign: form.get("zodiacSign"),
+        birthPlace: form.get("birthPlace"),
+        consultationPreference: form.get("preference"),
+      }),
+    });
+    setShowAdd(false);
+    fetchClients();
+  };
+
+  const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <header className="flex items-center justify-between">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold mb-2 text-slate-900">Clients Directory</h1>
-          <p className="text-slate-500">Manage your astrological clients and their details.</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Clients</h1>
+          <p className="text-[var(--muted-fg)] mt-1">Manage your astrological clients.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors rounded-lg px-4 py-2 font-medium flex items-center gap-2">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
           <Plus className="w-5 h-5" />
           Add Client
         </button>
-      </header>
+      </div>
 
-      <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 flex items-center gap-4">
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search by name, zodiac, or email..." 
-            className="w-full bg-white border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted-fg)]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search clients..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground)] placeholder:text-[var(--muted-fg)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
         </div>
-        <div className="flex gap-2">
-          <select className="bg-white border border-slate-200 rounded-xl py-2 px-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
-            <option value="all">All Zodiacs</option>
-            <option value="aries">Aries</option>
-            <option value="taurus">Taurus</option>
-            {/* Add others as needed */}
-          </select>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {ZODIAC_SIGNS.slice(0, 6).map((z) => (
+            <button
+              key={z}
+              onClick={() => setFilter(z)}
+              className={`px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === z
+                  ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                  : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"
+              }`}
+            >
+              {z}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-sm uppercase text-slate-500 tracking-wider">
-              <th className="p-4 font-medium">Client Name</th>
-              <th className="p-4 font-medium">Zodiac Sign</th>
-              <th className="p-4 font-medium">Contact</th>
-              <th className="p-4 font-medium">Status</th>
-              <th className="p-4 font-medium text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {clients.map((client) => (
-              <tr key={client.id} className="hover:bg-slate-50 transition-colors group">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <img src={client.avatar} alt={client.name} className="w-10 h-10 rounded-full border border-slate-200" />
-                    <div>
-                      <div className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                        <Link href={`/clients/${client.id}`}>{client.name}</Link>
-                      </div>
-                      <div className="text-xs text-slate-500">DOB: {client.dob}</div>
-                    </div>
+      {/* Client Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="skeleton h-40 rounded-xl" />)}
+        </div>
+      ) : clients.length === 0 ? (
+        <div className="text-center py-20">
+          <Star className="w-12 h-12 mx-auto text-[var(--muted-fg)] mb-3 opacity-40" />
+          <p className="font-medium text-[var(--foreground)]">No clients found</p>
+          <p className="text-sm text-[var(--muted-fg)] mt-1">Add your first client to get started.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {clients.map((client, i) => (
+            <Link
+              key={client.id}
+              href={`/clients/${client.id}`}
+              className="bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm rounded-2xl p-5 hover:shadow-lg transition-all animate-slide-up group"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              <div className="flex items-center gap-3">
+                {client.avatar ? (
+                  <img src={client.avatar} alt={client.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {getInitials(client.name)}
                   </div>
-                </td>
-                <td className="p-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {client.zodiac}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <div className="text-sm text-slate-700">{client.email}</div>
-                  <div className="text-xs text-slate-500">{client.phone}</div>
-                </td>
-                <td className="p-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                    client.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                    client.status === 'New' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                    'bg-slate-50 text-slate-700 border-slate-200'
-                  }`}>
-                    {client.status}
-                  </span>
-                </td>
-                <td className="p-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <Link href={`/clients/${client.id}`} className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-slate-900">
-                      View Details
-                    </Link>
-                    <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-slate-900">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-semibold text-[var(--foreground)] truncate group-hover:text-indigo-600 transition-colors">{client.name}</p>
+                  {client.zodiacSign && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                      {client.zodiacSign}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 space-y-1">
+                {client.phone && (
+                  <p className="text-xs text-[var(--muted-fg)] flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5" /> {client.phone}
+                  </p>
+                )}
+                {client.email && (
+                  <p className="text-xs text-[var(--muted-fg)] flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5" /> {client.email}
+                  </p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Add Client Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowAdd(false)}>
+          <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-md p-6 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">Add New Client</h2>
+            <form onSubmit={handleAdd} className="space-y-3">
+              <input name="name" required placeholder="Full Name" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+              <input name="phone" placeholder="Phone" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+              <input name="email" type="email" placeholder="Email" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+              <input name="birthPlace" placeholder="Birth Place" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+              <select name="zodiacSign" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                <option value="">Select Zodiac Sign</option>
+                {ZODIAC_SIGNS.filter(z => z !== "All").map((z) => <option key={z} value={z}>{z}</option>)}
+              </select>
+              <select name="preference" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                <option value="">Consultation Preference</option>
+                <option value="Online">Online</option>
+                <option value="In-Person">In-Person</option>
+                <option value="Phone">Phone</option>
+              </select>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--foreground)] font-medium hover:bg-[var(--surface-hover)] transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium">Save Client</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

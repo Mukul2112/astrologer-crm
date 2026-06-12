@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import { Toaster } from "react-hot-toast";
+import { LayoutContent } from "@/components/LayoutContent";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Astrologer CRM",
-  description: "Premium CRM for Astrologers to manage clients and consultations.",
+  title: "AstroCRM — Astrologer CRM",
+  description:
+    "Premium CRM for Astrologers to manage clients, appointments, and consultations.",
 };
 
 export default function RootLayout({
@@ -15,17 +18,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Force recompile for CSS changes (cache bust 2)
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-[var(--background)]">
           <Sidebar />
-          <main className="flex-1 ml-64 p-8">
-            <div className="max-w-6xl mx-auto">
-              {children}
-            </div>
-          </main>
+          <LayoutContent>{children}</LayoutContent>
         </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "var(--card-bg)",
+              color: "var(--foreground)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px var(--shadow-color)",
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -1,105 +1,125 @@
-import { appointments, clients } from "@/lib/data";
-import { Calendar as CalendarIcon, Clock, Plus, Video, MapPin } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Calendar, Plus, Clock, CheckCircle, XCircle, AlertCircle, User } from "lucide-react";
 import { format } from "date-fns";
 
+interface Appointment {
+  id: string;
+  dateTime: string;
+  duration: number;
+  type: string;
+  status: string;
+  fee: number;
+  client: { name: string };
+  astrologer: { name: string };
+}
+
 export default function AppointmentsPage() {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"upcoming" | "all">("upcoming");
+
+  useEffect(() => {
+    fetch("/api/appointments")
+      .then((r) => r.json())
+      .then((data) => { setAppointments(data.appointments || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const updateStatus = async (id: string, status: string) => {
+    setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    await fetch(`/api/appointments/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+  };
+
+  const now = new Date();
+  const upcoming = appointments.filter((a) => new Date(a.dateTime) >= now && a.status !== "CANCELLED" && a.status !== "COMPLETED");
+  const displayed = tab === "upcoming" ? upcoming : appointments;
+
+  const statusConfig: Record<string, { label: string; color: string; icon: typeof Calendar }> = {
+    SCHEDULED: { label: "Scheduled", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300", icon: Clock },
+    CONFIRMED: { label: "Confirmed", color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300", icon: CheckCircle },
+    COMPLETED: { label: "Completed", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300", icon: CheckCircle },
+    CANCELLED: { label: "Cancelled", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300", icon: XCircle },
+    NO_SHOW: { label: "No Show", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300", icon: AlertCircle },
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <header className="flex items-center justify-between">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold mb-2 text-slate-900">Appointments</h1>
-          <p className="text-slate-500">Manage your upcoming readings and consultations.</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Appointments</h1>
+          <p className="text-[var(--muted-fg)] mt-1">Schedule and manage client sessions.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors rounded-lg px-4 py-2 font-medium flex items-center gap-2">
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
           <Plus className="w-5 h-5" />
-          Schedule Session
+          Schedule
         </button>
-      </header>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Calendar Widget placeholder */}
-        <div className="space-y-6">
-          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-6 text-center">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg text-slate-900">June 2026</h3>
-              <div className="flex gap-2 text-slate-600">
-                <button className="p-1 hover:bg-slate-100 rounded">&lt;</button>
-                <button className="p-1 hover:bg-slate-100 rounded">&gt;</button>
-              </div>
-            </div>
-            {/* Simple mock calendar grid */}
-            <div className="grid grid-cols-7 gap-2 text-sm text-slate-500 mb-2">
-              <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-            </div>
-            <div className="grid grid-cols-7 gap-2 text-sm">
-              {Array.from({length: 30}).map((_, i) => (
-                <div key={i} className={`p-2 rounded-lg flex items-center justify-center cursor-pointer ${
-                  i === 11 ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'hover:bg-slate-100 text-slate-700'
-                }`}>
-                  {i + 1}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="bg-amber-50 border border-amber-200 shadow-sm rounded-xl p-6">
-            <h3 className="font-bold text-amber-800 mb-2">Auspicious Timing</h3>
-            <p className="text-sm text-amber-900/80">
-              Rahu Kaal today is between 13:30 to 15:00. Avoid scheduling new chart readings during this window.
-            </p>
-          </div>
+      {/* Tabs */}
+      <div className="flex gap-2">
+        <button onClick={() => setTab("upcoming")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${tab === "upcoming" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
+          Upcoming ({upcoming.length})
+        </button>
+        <button onClick={() => setTab("all")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${tab === "all" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
+          All ({appointments.length})
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-24 rounded-xl" />)}</div>
+      ) : displayed.length === 0 ? (
+        <div className="text-center py-16">
+          <Calendar className="w-12 h-12 mx-auto text-[var(--muted-fg)] mb-3 opacity-50" />
+          <p className="font-medium text-[var(--foreground)]">No appointments</p>
+          <p className="text-sm text-[var(--muted-fg)] mt-1">Schedule your first consultation.</p>
         </div>
-
-        {/* Appointments List */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center gap-4">
-              <button className="text-indigo-700 font-medium border-b-2 border-indigo-600 pb-1">Upcoming</button>
-              <button className="text-slate-500 font-medium pb-1 hover:text-slate-700 transition-colors">Completed</button>
-              <button className="text-slate-500 font-medium pb-1 hover:text-slate-700 transition-colors">Cancelled</button>
-            </div>
-            
-            <div className="divide-y divide-slate-100">
-              {appointments.map((apt) => {
-                const client = clients.find(c => c.id === apt.clientId);
-                return (
-                  <div key={apt.id} className="p-6 hover:bg-slate-50 transition-colors group">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 flex flex-col items-center justify-center border border-indigo-200 shrink-0">
-                          <span className="text-xs font-medium uppercase">{format(new Date(apt.date), "MMM")}</span>
-                          <span className="font-bold text-lg leading-none">{format(new Date(apt.date), "d")}</span>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900 text-lg">{apt.type}</h4>
-                          <div className="text-slate-500 text-sm mb-2 flex items-center gap-2">
-                            <span>with</span>
-                            <span className="text-slate-900 font-medium">{client?.name}</span>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-slate-500">
-                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {format(new Date(apt.date), "h:mm a")}</span>
-                            <span className="flex items-center gap-1"><Video className="w-3 h-3" /> Google Meet</span>
-                          </div>
-                        </div>
+      ) : (
+        <div className="space-y-3">
+          {displayed.map((appt, i) => {
+            const status = statusConfig[appt.status] || statusConfig.SCHEDULED;
+            return (
+              <div key={appt.id} className="bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shrink-0">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-[var(--foreground)]">{appt.type}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>{status.label}</span>
                       </div>
-                      <div className="flex gap-2">
-                        <button className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">
-                          Reschedule
-                        </button>
-                        <button className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors shadow-sm">
-                          Join Meeting
-                        </button>
-                      </div>
+                      <p className="text-sm text-[var(--muted-fg)] flex items-center gap-3 mt-1">
+                        <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{appt.client.name}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{format(new Date(appt.dateTime), "MMM d, h:mm a")}</span>
+                        <span>{appt.duration}min</span>
+                        <span className="font-medium text-green-600">₹{appt.fee}</span>
+                      </p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                  <div className="flex gap-2">
+                    {appt.status === "SCHEDULED" && (
+                      <>
+                        <button onClick={() => updateStatus(appt.id, "CONFIRMED")} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 hover:bg-indigo-200 transition-colors">Confirm</button>
+                        <button onClick={() => updateStatus(appt.id, "CANCELLED")} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 hover:bg-red-200 transition-colors">Cancel</button>
+                      </>
+                    )}
+                    {appt.status === "CONFIRMED" && (
+                      <button onClick={() => updateStatus(appt.id, "COMPLETED")} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 hover:bg-green-200 transition-colors">Complete</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-      </div>
+      )}
     </div>
   );
 }

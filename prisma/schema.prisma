@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ASTROLOGER") // ADMIN, ASTROLOGER, STAFF
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clients         Client[]
+  assignedLeads   Lead[]         @relation("AssignedAstrologer")
+  appointments    Appointment[]  @relation("Astrologer")
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  followUpsCreated FollowUp[]
+  documents       Document[]
+}
+
+model Client {
+  id                     String   @id @default(cuid())
+  name                   String
+  phone                  String?
+  email                  String?
+  gender                 String?  // MALE, FEMALE, OTHER
+  dob                    DateTime?
+  birthTime              String?
+  birthPlace             String?
+  zodiacSign             String?
+  consultationPreference String?
+  notes                  String?
+  avatar                 String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  leads        Lead[]
+  appointments Appointment[]
+  followUps    FollowUp[]
+  documents    Document[]
+}
+
+model Lead {
+  id              String    @id @default(cuid())
+  stage           String    @default("NEW_LEAD") // NEW_LEAD, CONTACTED, INTERESTED, CONSULTATION_BOOKED, CONSULTATION_COMPLETED, LOST_LEAD
+  source          String?
+  lastContactDate DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  clientId            String
+  client              Client @relation(fields: [clientId], references: [id])
+  assignedAstrologerId String?
+  assignedAstrologer   User?  @relation("AssignedAstrologer", fields: [assignedAstrologerId], references: [id])
+}
+
+model Appointment {
+  id       String            @id @default(cuid())
+  dateTime DateTime
+  duration Int               @default(60)
+  type     String
+  status   String            @default("SCHEDULED") // SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
+  fee      Float             @default(0)
+  notes    String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  clientId     String
+  client       Client @relation(fields: [clientId], references: [id])
+  astrologerId String
+  astrologer   User   @relation("Astrologer", fields: [astrologerId], references: [id])
+
+  consultationNote ConsultationNote?
+}
+
+model ConsultationNote {
+  id              String   @id @default(cuid())
+  sessionNotes    String?
+  recommendations String?
+  remedies        String?
+  gemstones       String?
+  followUpTasks   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model FollowUp {
+  id          String   @id @default(cuid())
+  dueDate     DateTime
+  description String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clientId    String
+  client      Client @relation(fields: [clientId], references: [id])
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  fileName  String
+  filePath  String
+  fileType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+
+  clientId   String
+  client     Client @relation(fields: [clientId], references: [id])
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  details   String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
