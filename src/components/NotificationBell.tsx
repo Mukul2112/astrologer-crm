@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, Check, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import Link from "next/link";
 import { format, isToday, isYesterday } from "date-fns";
 
@@ -64,8 +64,9 @@ export default function NotificationBell() {
         createdAt: new Date(Date.now() - 172800000).toISOString(),
       },
     ];
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNotifications(mockNotifications);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUnreadCount(mockNotifications.filter((n) => !n.isRead).length);
   }, []);
 

@@ -50,7 +50,7 @@ export default function AppointmentChart({ data }: AppointmentChartProps) {
                 boxShadow: "0 4px 12px var(--shadow-color)",
                 color: "var(--foreground)",
               }}
-              formatter={(value: any) => [value, "Appointments"]}
+              formatter={(value: number) => [value, "Appointments"]}
               labelStyle={{ color: "var(--muted-fg)" }}
             />
             <Bar

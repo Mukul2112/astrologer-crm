@@ -19,14 +19,21 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    let astrologerId = body.astrologerId;
+    
+    if (!astrologerId) {
+      const user = await prisma.user.findFirst();
+      astrologerId = user?.id;
+    }
+
     const appointment = await prisma.appointment.create({
       data: {
         clientId: body.clientId,
-        astrologerId: body.astrologerId,
+        astrologerId: astrologerId,
         dateTime: new Date(body.dateTime),
-        duration: body.duration || 60,
+        duration: parseInt(body.duration) || 60,
         type: body.type,
-        fee: body.fee || 0,
+        fee: parseFloat(body.fee) || 0,
         status: "SCHEDULED",
       },
     });

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { DollarSign, TrendingUp, BarChart3, Award } from "lucide-react";
-import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 const COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
 
 export default function RevenuePage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function RevenuePage() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie data={data.services || []} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={100} label>
-                {(data.services || []).map((_: any, i: number) => (
+                {((data?.services as unknown[]) || []).map((_: unknown, i: number) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>

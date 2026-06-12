@@ -50,13 +50,6 @@ export default function LeadCard({ lead }: { lead: LeadData }) {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const initials = lead.client.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
   return (
     <div
       ref={setNodeRef}
@@ -81,6 +74,7 @@ export default function LeadCard({ lead }: { lead: LeadData }) {
         {lead.assignedAstrologer && (
           <div className="shrink-0">
             {lead.assignedAstrologer.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={lead.assignedAstrologer.avatar}
                 alt={lead.assignedAstrologer.name}

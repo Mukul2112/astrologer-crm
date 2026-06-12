@@ -12,3 +12,29 @@ export async function GET() {
     return NextResponse.json({ documents: [] });
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    
+    let uploadedById = body.uploadedById;
+    if (!uploadedById) {
+      const user = await prisma.user.findFirst();
+      uploadedById = user?.id;
+    }
+
+    const document = await prisma.document.create({
+      data: {
+        fileName: body.fileName,
+        filePath: body.filePath || "/mock-path.pdf",
+        fileType: body.fileType || "application/pdf",
+        fileSize: body.fileSize || 1024,
+        clientId: body.clientId,
+        uploadedById: uploadedById,
+      },
+    });
+    return NextResponse.json(document, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to create document" }, { status: 500 });
+  }
+}

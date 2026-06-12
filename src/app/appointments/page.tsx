@@ -20,11 +20,25 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"upcoming" | "all">("upcoming");
 
+  const [showAdd, setShowAdd] = useState(false);
+  const [clients, setClients] = useState<{ id: string; name: string; phone?: string; email?: string }[]>([]);
+  const [newAppt, setNewAppt] = useState({
+    clientId: "",
+    dateTime: "",
+    duration: 60,
+    type: "Vedic Astrology",
+    fee: 1500,
+  });
+
   useEffect(() => {
     fetch("/api/appointments")
       .then((r) => r.json())
       .then((data) => { setAppointments(data.appointments || []); setLoading(false); })
       .catch(() => setLoading(false));
+
+    fetch("/api/clients?limit=100")
+      .then((r) => r.json())
+      .then((data) => setClients(data.clients || []));
   }, []);
 
   const updateStatus = async (id: string, status: string) => {
@@ -34,6 +48,23 @@ export default function AppointmentsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+  };
+
+  const handleSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAppt),
+      });
+      if (res.ok) {
+        // Refresh page to get populated client data, or just fetch again
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const now = new Date();
@@ -55,7 +86,10 @@ export default function AppointmentsPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Appointments</h1>
           <p className="text-[var(--muted-fg)] mt-1 text-sm sm:text-base">Schedule and manage client sessions.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all w-full sm:w-auto">
+        <button 
+          onClick={() => setShowAdd(true)}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all w-full sm:w-auto"
+        >
           <Plus className="w-5 h-5" />
           Schedule
         </button>
@@ -92,8 +126,8 @@ export default function AppointmentsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-[var(--foreground)]">{appt.type}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>{status.label}</span>
+                         <p className="font-semibold text-[var(--foreground)]">{appt.type}</p>
+                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>{status.label}</span>
                       </div>
                       <p className="text-sm text-[var(--muted-fg)] flex items-center gap-3 mt-1">
                         <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{appt.client.name}</span>
@@ -118,6 +152,99 @@ export default function AppointmentsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowAdd(false)}>
+          <div className="bg-[var(--card-bg)] rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">Schedule Appointment</h2>
+            <form onSubmit={handleSchedule} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Select Client</label>
+                <select 
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                  value={newAppt.clientId}
+                  onChange={e => setNewAppt({...newAppt, clientId: e.target.value})}
+                >
+                  <option value="">-- Choose a Client --</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.phone || c.email})</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                  value={newAppt.dateTime}
+                  onChange={e => setNewAppt({...newAppt, dateTime: e.target.value})}
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Duration (mins)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="15"
+                    step="15"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                    value={newAppt.duration}
+                    onChange={e => setNewAppt({...newAppt, duration: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Fee (₹)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                    value={newAppt.fee}
+                    onChange={e => setNewAppt({...newAppt, fee: parseFloat(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--muted-fg)] mb-1">Type</label>
+                <select 
+                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                  value={newAppt.type}
+                  onChange={e => setNewAppt({...newAppt, type: e.target.value})}
+                >
+                  <option value="Vedic Astrology">Vedic Astrology</option>
+                  <option value="Tarot Reading">Tarot Reading</option>
+                  <option value="Numerology">Numerology</option>
+                  <option value="Vastu Consultation">Vastu Consultation</option>
+                  <option value="Palmistry">Palmistry</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAdd(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--foreground)] hover:bg-[var(--muted)] transition-all font-medium"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-medium"
+                >
+                  Schedule
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

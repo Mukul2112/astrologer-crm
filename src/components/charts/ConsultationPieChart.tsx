@@ -37,7 +37,7 @@ export default function ConsultationPieChart({ data }: ConsultationPieChartProps
                 boxShadow: "0 4px 12px var(--shadow-color)",
                 color: "var(--foreground)",
               }}
-              formatter={(value: any) => [value, "Sessions"]}
+              formatter={(value: number) => [value, "Sessions"]}
               labelStyle={{ color: "var(--muted-fg)" }}
             />
             <Legend

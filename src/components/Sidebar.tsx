@@ -17,7 +17,6 @@ import {
   Menu,
   Sun,
   Moon,
-  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -42,6 +41,7 @@ export default function Sidebar() {
   useEffect(() => {
     const stored = localStorage.getItem("astrocrm-dark");
     if (stored === "true") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDarkMode(true);
       document.documentElement.classList.add("dark");
     }
@@ -49,6 +49,7 @@ export default function Sidebar() {
 
   // Close mobile sidebar on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false);
   }, [pathname]);
 

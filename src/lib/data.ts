@@ -27,7 +27,7 @@ export interface Note {
   content: string;
 }
 
-export let clients: Client[] = [
+export const clients: Client[] = [
   {
     id: "c1",
     name: "Aarav Sharma",
@@ -78,7 +78,7 @@ export let clients: Client[] = [
   }
 ];
 
-export let appointments: Appointment[] = [
+export const appointments: Appointment[] = [
   {
     id: "a1",
     clientId: "c2",

@@ -6,7 +6,7 @@ export async function GET() {
     const notifications = await prisma.notification.findMany({
       orderBy: { createdAt: "desc" },
     });
-    const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+    const unreadCount = notifications.filter((n: { isRead: boolean }) => !n.isRead).length;
     return NextResponse.json({ notifications, unreadCount });
   } catch {
     return NextResponse.json({ notifications: [], unreadCount: 0 });
