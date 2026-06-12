@@ -50,12 +50,12 @@ export default function AppointmentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--foreground)]">Appointments</h1>
-          <p className="text-[var(--muted-fg)] mt-1">Schedule and manage client sessions.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Appointments</h1>
+          <p className="text-[var(--muted-fg)] mt-1 text-sm sm:text-base">Schedule and manage client sessions.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
+        <button className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all w-full sm:w-auto">
           <Plus className="w-5 h-5" />
           Schedule
         </button>

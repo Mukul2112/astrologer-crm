@@ -33,16 +33,16 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--foreground)]">Documents</h1>
-          <p className="text-[var(--muted-fg)] mt-1">Manage Kundli files and client documents.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Documents</h1>
+          <p className="text-[var(--muted-fg)] mt-1 text-sm sm:text-base">Manage Kundli files and client documents.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setViewMode("grid")} className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button onClick={() => setViewMode("grid")} className={`flex-1 sm:flex-none p-2 rounded-lg transition-colors flex justify-center ${viewMode === "grid" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
             <Grid className="w-5 h-5" />
           </button>
-          <button onClick={() => setViewMode("list")} className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
+          <button onClick={() => setViewMode("list")} className={`flex-1 sm:flex-none p-2 rounded-lg transition-colors flex justify-center ${viewMode === "list" ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600" : "text-[var(--muted-fg)] hover:bg-[var(--surface-hover)]"}`}>
             <List className="w-5 h-5" />
           </button>
         </div>
@@ -53,7 +53,7 @@ export default function DocumentsPage() {
         <Upload className="w-10 h-10 mx-auto text-[var(--muted-fg)] mb-3" />
         <p className="font-medium text-[var(--foreground)]">Drag and drop files here</p>
         <p className="text-sm text-[var(--muted-fg)] mt-1">PDF, JPG, PNG up to 10MB</p>
-        <button className="mt-4 px-4 py-2 rounded-xl gradient-primary text-white text-sm font-medium">Browse Files</button>
+        <button className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow-sm transition-all">Browse Files</button>
       </div>
 
       {loading ? (

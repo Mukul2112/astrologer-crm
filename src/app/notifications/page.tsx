@@ -56,12 +56,12 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--foreground)]">Notifications</h1>
-          <p className="text-[var(--muted-fg)] mt-1">Stay updated with your CRM activity.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Notifications</h1>
+          <p className="text-[var(--muted-fg)] mt-1 text-sm sm:text-base">Stay updated with your CRM activity.</p>
         </div>
-        <button onClick={markAllRead} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
+        <button onClick={markAllRead} className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors w-full sm:w-auto border border-indigo-100 dark:border-indigo-900/30 sm:border-transparent">
           <CheckCheck className="w-4 h-4" />
           Mark all read
         </button>
@@ -87,7 +87,7 @@ export default function NotificationsPage() {
               <h3 className="text-sm font-semibold text-[var(--muted-fg)] mb-3">{group}</h3>
               <div className="space-y-2">
                 {items.map((n) => (
-                  <button key={n.id} onClick={() => markRead(n.id)} className={`w-full text-left glass rounded-xl p-4 flex items-start gap-4 transition-all hover:shadow-md ${!n.isRead ? "border-l-4 border-indigo-500" : ""}`}>
+                  <button key={n.id} onClick={() => markRead(n.id)} className={`w-full text-left bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm rounded-xl p-4 flex items-start gap-4 transition-all hover:shadow-md ${!n.isRead ? "border-l-4 border-l-indigo-500" : ""}`}>
                     <span className="text-2xl shrink-0">{typeIcon[n.type] || "📢"}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">

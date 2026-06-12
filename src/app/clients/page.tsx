@@ -64,15 +64,21 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--foreground)]">Clients</h1>
-          <p className="text-[var(--muted-fg)] mt-1">Manage your astrological clients.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Clients</h1>
+          <p className="text-[var(--muted-fg)] mt-1 text-sm sm:text-base">Manage your astrological consultations and client data.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
-          <Plus className="w-5 h-5" />
-          Add Client
-        </button>
+        <div className="w-full sm:w-auto">
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all w-full sm:w-auto"
+          >
+            <Plus className="w-5 h-5" />
+            New Client
+          </button>
+        </div>
       </div>
 
       {/* Search & Filters */}
@@ -161,7 +167,7 @@ export default function ClientsPage() {
       {/* Add Client Modal */}
       {showAdd && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowAdd(false)}>
-          <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-md p-6 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">Add New Client</h2>
             <form onSubmit={handleAdd} className="space-y-3">
               <input name="name" required placeholder="Full Name" className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
@@ -180,7 +186,7 @@ export default function ClientsPage() {
               </select>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowAdd(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--foreground)] font-medium hover:bg-[var(--surface-hover)] transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium">Save Client</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all">Save Client</button>
               </div>
             </form>
           </div>

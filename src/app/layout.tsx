@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="flex min-h-screen bg-[var(--background)]">
+        <div className="flex flex-col md:flex-row min-h-screen bg-[var(--background)] relative">
           <Sidebar />
           <LayoutContent>{children}</LayoutContent>
         </div>
