@@ -50,7 +50,8 @@ export default function AppointmentChart({ data }: AppointmentChartProps) {
                 boxShadow: "0 4px 12px var(--shadow-color)",
                 color: "var(--foreground)",
               }}
-              formatter={(value: number) => [value, "Appointments"]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: any) => [value, "Appointments"]}
               labelStyle={{ color: "var(--muted-fg)" }}
             />
             <Bar

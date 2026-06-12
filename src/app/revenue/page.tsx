@@ -6,8 +6,17 @@ import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 
 const COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
 
+interface RevenueData {
+  totalRevenue?: number;
+  thisMonth?: number;
+  avgPerSession?: number;
+  topService?: string;
+  monthly?: any[];
+  services?: any[];
+}
+
 export default function RevenuePage() {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<RevenueData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

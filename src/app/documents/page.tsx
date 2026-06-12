@@ -16,6 +16,9 @@ interface Doc {
 export default function DocumentsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [clients, setClients] = useState<{ id: string; name: string; phone?: string; email?: string }[]>([]);
+  const [docs, setDocs] = useState<Doc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [newDoc, setNewDoc] = useState({
     clientId: "",
     fileName: "",

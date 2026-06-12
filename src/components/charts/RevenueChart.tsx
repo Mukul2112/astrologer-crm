@@ -56,7 +56,8 @@ export default function RevenueChart({ data }: RevenueChartProps) {
                 boxShadow: "0 4px 12px var(--shadow-color)",
                 color: "var(--foreground)",
               }}
-              formatter={(value: number) => [`₹${value.toLocaleString()}`, "Revenue"]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: any) => [`₹${value.toLocaleString("en-IN")}`, "Revenue"]}
               labelStyle={{ color: "var(--muted-fg)" }}
             />
             <Area

@@ -37,7 +37,8 @@ export default function ConsultationPieChart({ data }: ConsultationPieChartProps
                 boxShadow: "0 4px 12px var(--shadow-color)",
                 color: "var(--foreground)",
               }}
-              formatter={(value: number) => [value, "Sessions"]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: any) => [value, "Sessions"]}
               labelStyle={{ color: "var(--muted-fg)" }}
             />
             <Legend

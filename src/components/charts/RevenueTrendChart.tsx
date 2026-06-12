@@ -49,7 +49,8 @@ export default function RevenueTrendChart({ data }: RevenueTrendChartProps) {
               fontSize: "13px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
             }}
-            formatter={(value: number) => [`₹${value.toLocaleString("en-IN")}`, "Revenue"]}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            formatter={(value: any) => [`₹${value.toLocaleString("en-IN")}`, "Revenue"]}
             labelStyle={{ color: "var(--foreground)", fontWeight: 600 }}
           />
           <Area
