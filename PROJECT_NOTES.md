@@ -1,34 +1,28 @@
-# Astrologer CRM - Project Notes
+# Project Notes: Astrologer CRM
 
-## Overview
-Astrologer CRM is a specialized dashboard designed for professional astrologers to manage their clients, appointments, and consultation notes seamlessly.
+## 🛠️ Tech Stack
+* **Framework:** Next.js (App Router)
+* **Frontend:** React, Tailwind CSS
+* **Database:** PostgreSQL (hosted on Supabase)
+* **ORM:** Prisma
+* **Icons:** Lucide React
+* **Integrations:** Google Calendar (Dynamic URL generation), Nodemailer (Email alerts)
+* **Deployment:** Vercel
 
-## Tech Stack
-*   **Frontend Framework**: Next.js (App Router)
-*   **Language**: TypeScript
-*   **Styling**: Tailwind CSS with custom global CSS (Glassmorphism, deep dark aesthetics)
-*   **Icons**: `lucide-react`
-*   **Date Formatting**: `date-fns`
-*   **Data Storage**: In-memory mock data (used `src/lib/data.ts`) to ensure rapid development, a flawless demo experience, and an easy setup for evaluators without needing external database credentials.
+## 🏗️ Architecture
+* **Full-Stack Application:** The project utilizes Next.js for both the frontend UI and the backend API routes, keeping the codebase unified and easy to deploy.
+* **Database Design:** The core architectural decision was separating the **Client** model from the **Lead** model. 
+  * *Clients* hold permanent astrological demographic data (Birth Date, Time, Place). 
+  * *Leads* represent transactional interest in a specific service. This 1-to-Many relationship allows an astrologer to track multiple sales opportunities from a single client without duplicating complex birth records.
+* **Design System:** The UI employs a custom, mobile-responsive "glassmorphism" aesthetic with a unified dark/premium color palette to suit the astrological niche.
 
-## Architecture
-The application follows a standard Next.js App Router architecture:
-*   `src/app/page.tsx`: The main Dashboard view containing analytics and a quick summary.
-*   `src/app/layout.tsx`: Root layout that includes a persistent global `Sidebar` navigation.
-*   `src/app/clients/page.tsx`: A table view of all clients with quick search capabilities.
-*   `src/app/clients/[id]/page.tsx`: A dynamic route detailing a specific client's profile, birth details, and past consultation notes.
-*   `src/app/appointments/page.tsx`: A schedule view for upcoming astrological readings.
-*   `src/components/`: Contains reusable UI elements like the Sidebar.
-*   `src/lib/data.ts`: Acts as the central mock database and provides data fetching helpers.
+## 🧠 Assumptions Made
+* **Repeat Business:** It is assumed that astrologers have high client retention and up-sell different services over time (e.g., selling a Gemstone consultation to someone who previously bought a Tarot reading).
+* **Single User Focus:** The current iteration assumes the CRM is being used by a single astrologer or a small, unified team. It does not currently implement multi-tenant data siloing.
+* **Manual Lead Entry:** While the system tracks leads, it is currently assumed the astrologer manually inputs them or imports them, rather than leads self-registering via a public form.
 
-## Assumptions
-*   **Single User Context**: The CRM is built assuming a single Astrologer (Pandit Ji) is logged in. Authentication is bypassed for the MVP.
-*   **Mock Data Strategy**: Since the focus is on a high-quality UI/UX and immediate runnability for the assignment submission, a mock database is sufficient. No backend API routes were strictly necessary.
-*   **Modern Browser**: Relies on modern CSS features like `backdrop-filter` for the glassmorphism effects.
-
-## Future Improvements
-1.  **Database Integration**: Migrate the mock data to a PostgreSQL database (e.g., Supabase or Neon) with Prisma ORM.
-2.  **Authentication**: Add NextAuth (Auth.js) to allow multiple astrologers to create accounts and securely manage their independent client lists.
-3.  **Astrology API Integration**: Integrate a third-party astrology API (e.g., Vedic Rishi) to automatically pull current planetary transits or generate charts based on the client's DOB/TOB/POB.
-4.  **Payment Gateway**: Add Razorpay or Stripe to allow clients to prepay for their consultations.
-5.  **Calendar Sync**: Integrate Google Calendar to automatically block off times for new appointments.
+## 🚀 Future Improvements
+* **Authentication & Security:** Implement secure login using NextAuth.js or Supabase Auth to protect client data.
+* **Payment Integration:** Integrate Stripe or Razorpay to allow astrologers to collect consultation fees directly when converting a Lead into a Scheduled Appointment.
+* **Automated WhatsApp Reminders:** Upgrade the current email notification system to send automated WhatsApp or SMS reminders to clients 24 hours before their scheduled appointment.
+* **Public Booking Page:** Create a public-facing scheduling link where clients can submit their birth details directly into the CRM as a new Lead.
